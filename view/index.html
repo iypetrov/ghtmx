@@ -1,0 +1,11 @@
+{{ block "index" . }}
+<html>
+<head>
+    <title>IP</title>
+    <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+</head>
+<body>
+User IP is {{ .Ip }}
+</body>
+</html>
+{{ end }}
