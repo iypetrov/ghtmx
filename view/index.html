@@ -1,11 +1,24 @@
 {{ block "index" . }}
 <html>
 <head>
-    <title>IP</title>
+    <title>ghtmx</title>
     <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .custom-bg {
+            background-color: #f7f7f7;
+        }
+    </style>
 </head>
-<body>
-User IP is {{ .Ip }}
+<body class="flex items-center justify-center h-screen custom-bg">
+<div class="flex flex-col items-center">
+    <h1 class="text-7xl font-bold mb-12 text-center text-gray-700">
+        User IP is <br>{{ .Ip }}
+    </h1>
+    <div class="text-center">
+        <img src="https://www.kindpng.com/picc/m/635-6357890_gopher-aws-golang-hd-png-download.png" class="w-64 h-auto" alt="Gopher AWS">
+    </div>
+</div>
 </body>
 </html>
 {{ end }}
