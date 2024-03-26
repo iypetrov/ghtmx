@@ -19,7 +19,7 @@ func main() {
 }
 
 func Start(ctx context.Context) error {
-	ctx, cancel := context.WithCancel(ctx)
+	_, cancel := context.WithCancel(ctx)
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /", handler.GetHomePage)
