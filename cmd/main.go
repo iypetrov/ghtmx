@@ -3,7 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/IliyaYavorovPetrov/ghtmx/app/home/handler"
+	"github.com/IliyaYavorovPetrov/ghtmx/pkg/config"
+	"github.com/IliyaYavorovPetrov/ghtmx/pkg/ip"
 	"log"
 	"net/http"
 	"os"
@@ -13,16 +14,30 @@ import (
 
 func main() {
 	ctx := context.Background()
-	if err := Start(ctx); err != nil {
+	if err := Run(ctx); err != nil {
 		return
 	}
 }
 
-func Start(ctx context.Context) error {
-	_, cancel := context.WithCancel(ctx)
-	mux := http.NewServeMux()
+func Run(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
 
-	mux.HandleFunc("GET /", handler.GetHomePage)
+	// init storages
+	conn := config.InitDatabaseConnectionPool(ctx)
+	defer conn.Close()
+
+	ipStorage := ip.NewStorage(ctx, conn)
+
+	// init servers
+	ipServer := ip.NewServer(ipStorage)
+
+	// init handlers
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /health-check", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("OK"))
+	})
+	mux.HandleFunc("GET /", ip.GetRequestIPHandler(ipServer))
 
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		fmt.Println(err.Error())
