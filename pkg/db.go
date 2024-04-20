@@ -1,4 +1,4 @@
-package config
+package pkg
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 
 func RunDatabaseSchemaMigration() {
 	m, err := migrate.New(
-		"file://db/migrations",
+		"file://migrations",
 		"postgres://admin:admin@localhost:5432/ipdb?sslmode=disable")
 	if err != nil {
 		panic(err)

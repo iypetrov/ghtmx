@@ -9,12 +9,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/IliyaYavorovPetrov/ghtmx/pkg/config"
+	"github.com/IliyaYavorovPetrov/ghtmx/pkg"
 	"github.com/IliyaYavorovPetrov/ghtmx/pkg/ip"
 )
 
 func init() {
-	config.RunDatabaseSchemaMigration()
+	pkg.RunDatabaseSchemaMigration()
 }
 
 func main() {
@@ -28,7 +28,7 @@ func Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 
 	// init storages
-	conn := config.InitDatabaseConnectionPool(ctx)
+	conn := pkg.InitDatabaseConnectionPool(ctx)
 	defer conn.Close()
 
 	ipStorage := ip.NewStorage(ctx, conn)
