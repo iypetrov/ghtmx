@@ -2,6 +2,9 @@ package ip
 
 import (
 	"net/http"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type Server struct {
@@ -14,15 +17,17 @@ func NewServer(storage *Storage) *Server {
 	}
 }
 
-func (s *Server) GetUserIp(r *http.Request) RequestIPModel {
-	userData := RequestIPModel{
-		IP: r.RemoteAddr,
+func (s *Server) GetUserIp(r *http.Request) (RequestIPModel, error) {
+	model := RequestIPModel{
+		ID:        uuid.New(),
+		IP:        r.RemoteAddr,
+		CreatedAt: time.Now(),
 	}
 
-	_, err := s.storage.GetStatus()
+	entity, err := s.storage.CreateRequestIPEntity(RequestIPModelToRequestIPEntity(model))
 	if err != nil {
-		return RequestIPModel{}
+		return RequestIPModel{}, err
 	}
 
-	return userData
+	return RequestIPEntityToRequestIPModel(entity), nil
 }

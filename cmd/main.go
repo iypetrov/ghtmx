@@ -3,14 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/IliyaYavorovPetrov/ghtmx/pkg/config"
-	"github.com/IliyaYavorovPetrov/ghtmx/pkg/ip"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/IliyaYavorovPetrov/ghtmx/pkg/config"
+	"github.com/IliyaYavorovPetrov/ghtmx/pkg/ip"
 )
+
+func init() {
+	config.RunDatabaseSchemaMigration()
+}
 
 func main() {
 	ctx := context.Background()
@@ -35,10 +40,14 @@ func Run(ctx context.Context) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health-check", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("OK"))
+		_, err := w.Write([]byte("OK"))
+		if err != nil {
+			return
+		}
 	})
 	mux.HandleFunc("GET /", ip.GetRequestIPHandler(ipServer))
 
+	fmt.Printf("Server is running port %d 🚀\n", 8080)
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		fmt.Println(err.Error())
 	}

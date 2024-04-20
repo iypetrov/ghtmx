@@ -10,9 +10,13 @@ func GetRequestIPHandler(server *Server) func(w http.ResponseWriter, r *http.Req
 	tmpl := template.Must(template.ParseFiles("view/index.html"))
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		requestIPModel := server.GetUserIp(r)
-		requestIPResponseDTO := RequestIPModelToRequestIPResponseDTO(requestIPModel)
-		if err := tmpl.Execute(w, requestIPResponseDTO); err != nil {
+		requestIPModel, err := server.GetUserIp(r)
+		if err != nil {
+			http.Error(w, "Failed to get user IP: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if err := tmpl.Execute(w, requestIPModel); err != nil {
 			log.Println("error executing template :", err)
 			return
 		}

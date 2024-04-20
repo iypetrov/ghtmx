@@ -1,9 +1,13 @@
 package ip
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type RequestIPModel struct {
-	ID        string
+	ID        uuid.UUID
 	IP        string
-	CreatedOn time.Time
+	CreatedAt time.Time
 }

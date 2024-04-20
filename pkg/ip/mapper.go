@@ -4,14 +4,14 @@ func RequestIPEntityToRequestIPModel(entity RequestIPEntity) RequestIPModel {
 	return RequestIPModel{
 		ID:        entity.ID,
 		IP:        entity.IP,
-		CreatedOn: entity.CreatedOn,
+		CreatedAt: entity.CreatedAt,
 	}
 }
 
-func RequestIPModelToRequestIPResponseDTO(model RequestIPModel) RequestIPResponseDTO {
-	return RequestIPResponseDTO{
+func RequestIPModelToRequestIPEntity(model RequestIPModel) RequestIPEntity {
+	return RequestIPEntity{
 		ID:        model.ID,
 		IP:        model.IP,
-		CreatedOn: model.CreatedOn,
+		CreatedAt: model.CreatedAt,
 	}
 }

@@ -1,9 +1,13 @@
 package ip
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type RequestIPEntity struct {
-	ID        string    `db:"id"`
+	ID        uuid.UUID `db:"id"`
 	IP        string    `db:"ip"`
-	CreatedOn time.Time `db:"created_on"`
+	CreatedAt time.Time `db:"created_at"`
 }
