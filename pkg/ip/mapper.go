@@ -1,19 +1,11 @@
 package ip
 
 func RequestIPEntityToRequestIPModel(entity RequestIPEntity) RequestIPModel {
-	return RequestIPModel{
-		ID:        entity.ID,
-		IP:        entity.IP,
-		CreatedAt: entity.CreatedAt,
-	}
+	return RequestIPModel(entity)
 }
 
 func RequestIPModelToRequestIPEntity(model RequestIPModel) RequestIPEntity {
-	return RequestIPEntity{
-		ID:        model.ID,
-		IP:        model.IP,
-		CreatedAt: model.CreatedAt,
-	}
+	return RequestIPEntity(model)
 }
 
 func RequestIPModelToRequestIPResponseDTO(model RequestIPModel) RequestIPResponseDTO {
@@ -27,10 +19,7 @@ func RequestIPModelToRequestIPResponseDTO(model RequestIPModel) RequestIPRespons
 func StatsIPEntitiesToStatsIPModels(entities []StatsIPEntity) []StatsIPModel {
 	models := make([]StatsIPModel, len(entities))
 	for i, entity := range entities {
-		models[i] = StatsIPModel{
-			IP:    entity.IP,
-			Count: entity.Count,
-		}
+		models[i] = StatsIPModel(entity)
 	}
 	return models
 }
@@ -38,10 +27,7 @@ func StatsIPEntitiesToStatsIPModels(entities []StatsIPEntity) []StatsIPModel {
 func StatsIPModelsToStatsIPEntities(models []StatsIPModel) []StatsIPEntity {
 	entities := make([]StatsIPEntity, len(models))
 	for i, model := range models {
-		entities[i] = StatsIPEntity{
-			IP:    model.IP,
-			Count: model.Count,
-		}
+		entities[i] = StatsIPEntity(model)
 	}
 	return entities
 }
@@ -49,10 +35,7 @@ func StatsIPModelsToStatsIPEntities(models []StatsIPModel) []StatsIPEntity {
 func StatsIPModelsToStatsIPResponseDTOs(models []StatsIPModel) []StatsIPResponseDTO {
 	dtos := make([]StatsIPResponseDTO, len(models))
 	for i, model := range models {
-		dtos[i] = StatsIPResponseDTO{
-			IP:    model.IP,
-			Count: model.Count,
-		}
+		dtos[i] = StatsIPResponseDTO(model)
 	}
 	return dtos
 }

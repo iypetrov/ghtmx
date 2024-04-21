@@ -35,11 +35,17 @@ func LoadConfig() Config {
 	}
 
 	if _, ok := os.LookupEnv("STORAGE_USERNAME"); ok {
-		viper.BindEnv("storage.username", "STORAGE_USERNAME")
+		err := viper.BindEnv("storage.username", "STORAGE_USERNAME")
+		if err != nil {
+			return Config{}
+		}
 	}
 
 	if _, ok := os.LookupEnv("STORAGE_PASSWORD"); ok {
-		viper.BindEnv("storage.password", "STORAGE_PASSWORD")
+		err := viper.BindEnv("storage.password", "STORAGE_PASSWORD")
+		if err != nil {
+			return Config{}
+		}
 	}
 
 	var cfg Config
