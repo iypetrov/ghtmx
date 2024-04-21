@@ -1,0 +1,52 @@
+package pkg
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/IliyaYavorovPetrov/ghtmx/config"
+)
+
+func RunDatabaseSchemaMigration(cfg config.Config) {
+	m, err := migrate.New(
+		"file://migrations",
+		fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable",
+			cfg.Storage.Username,
+			cfg.Storage.Password,
+			cfg.Storage.Addr,
+			cfg.Storage.Name,
+		))
+	if err != nil {
+		panic(err)
+	}
+
+	if err := m.Up(); err != nil {
+		if err != migrate.ErrNoChange {
+			log.Fatal(err)
+		}
+	}
+}
+
+func InitDatabaseConnectionPool(ctx context.Context, cfg config.Config) *pgxpool.Pool {
+	conn, err := pgxpool.New(
+		ctx,
+		fmt.Sprintf(
+			"postgres://%s:%s@%s/%s",
+			cfg.Storage.Username,
+			cfg.Storage.Password,
+			cfg.Storage.Addr,
+			cfg.Storage.Name,
+		),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	return conn
+}

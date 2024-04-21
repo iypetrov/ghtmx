@@ -1,0 +1,8 @@
+ghtmx:
+  version: 1.1.0
+  port: 8080
+storage:
+  username: admin
+  password: admin
+  name: ipdb
+  addr: localhost:5432
