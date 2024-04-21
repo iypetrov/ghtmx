@@ -61,7 +61,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run unit tests
-        run: docker run --rm ghcr.io/${{ env.IMAGE_NAME }}:${{ github.run_id }} go test -v ./app/...
+        run: docker run --rm ghcr.io/${{ env.IMAGE_NAME }}:${{ github.run_id }} go test -v ./pkg/...
 
   linter-job:
     needs: [ publish-test-image-job ]
