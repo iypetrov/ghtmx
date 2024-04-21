@@ -2,18 +2,26 @@ package pkg
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/IliyaYavorovPetrov/ghtmx/config"
 )
 
-func RunDatabaseSchemaMigration() {
+func RunDatabaseSchemaMigration(cfg config.Config) {
 	m, err := migrate.New(
 		"file://migrations",
-		"postgres://admin:admin@localhost:5432/ipdb?sslmode=disable")
+		fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable",
+			cfg.Storage.Username,
+			cfg.Storage.Password,
+			cfg.Storage.Addr,
+			cfg.Storage.Name,
+		))
 	if err != nil {
 		panic(err)
 	}
@@ -25,8 +33,17 @@ func RunDatabaseSchemaMigration() {
 	}
 }
 
-func InitDatabaseConnectionPool(ctx context.Context) *pgxpool.Pool {
-	conn, err := pgxpool.New(ctx, "postgres://admin:admin@localhost:5432/ipdb")
+func InitDatabaseConnectionPool(ctx context.Context, cfg config.Config) *pgxpool.Pool {
+	conn, err := pgxpool.New(
+		ctx,
+		fmt.Sprintf(
+			"postgres://%s:%s@%s/%s",
+			cfg.Storage.Username,
+			cfg.Storage.Password,
+			cfg.Storage.Addr,
+			cfg.Storage.Name,
+		),
+	)
 	if err != nil {
 		panic(err)
 	}

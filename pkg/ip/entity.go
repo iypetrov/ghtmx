@@ -11,3 +11,8 @@ type RequestIPEntity struct {
 	IP        string    `db:"ip"`
 	CreatedAt time.Time `db:"created_at"`
 }
+
+type StatsIPEntity struct {
+	IP    string
+	Count int
+}

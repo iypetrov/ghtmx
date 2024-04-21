@@ -17,7 +17,7 @@ func NewServer(storage *Storage) *Server {
 	}
 }
 
-func (s *Server) GetUserIp(r *http.Request) (RequestIPModel, error) {
+func (s *Server) CreateRequestIPModel(r *http.Request) (RequestIPModel, error) {
 	model := RequestIPModel{
 		ID:        uuid.New(),
 		IP:        r.RemoteAddr,
@@ -30,4 +30,15 @@ func (s *Server) GetUserIp(r *http.Request) (RequestIPModel, error) {
 	}
 
 	return RequestIPEntityToRequestIPModel(entity), nil
+}
+
+func (s *Server) GetStatsIPModels() ([]StatsIPModel, error) {
+	var models []StatsIPModel
+	entities, err := s.storage.GetStatsIPEntities()
+	if err != nil {
+		return models, err
+	}
+
+	models = StatsIPEntitiesToStatsIPModels(entities)
+	return models, nil
 }

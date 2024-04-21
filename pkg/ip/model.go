@@ -11,3 +11,8 @@ type RequestIPModel struct {
 	IP        string
 	CreatedAt time.Time
 }
+
+type StatsIPModel struct {
+	IP    string
+	Count int
+}

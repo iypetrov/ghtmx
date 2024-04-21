@@ -1,4 +1,4 @@
-{{ block "index" . }}
+{{ block "index" .}}
 <!doctype html>
 <html lang="en">
   <head>
@@ -6,13 +6,13 @@
     <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      .custom-bg {
-        background-color: #f7f7f7;
-      }
+    .custom-bg {
+      background-color: #f7f7f7;
+    }
     </style>
   </head>
   <body class="flex items-center justify-center h-screen custom-bg">
-    <div class="flex flex-col items-center">
+    <div class="flex flex-col items-center" hx-post="/ip" hx-trigger="load" hx-swap="none">
       <h1 class="text-7xl font-bold mb-12 text-center text-gray-700">
         User IP is <br />{{ .IP }}
       </h1>
@@ -23,6 +23,7 @@
           alt="Gopher AWS"
         />
       </div>
+      <div class="flex flex-col items-center" hx-get="/stats" hx-trigger="load" hx-swap="outerHTML">Show Stats</button>
     </div>
   </body>
 </html>

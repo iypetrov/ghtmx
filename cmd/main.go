@@ -9,13 +9,10 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/IliyaYavorovPetrov/ghtmx/config"
 	"github.com/IliyaYavorovPetrov/ghtmx/pkg"
 	"github.com/IliyaYavorovPetrov/ghtmx/pkg/ip"
 )
-
-func init() {
-	pkg.RunDatabaseSchemaMigration()
-}
 
 func main() {
 	ctx := context.Background()
@@ -26,9 +23,11 @@ func main() {
 
 func Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
+	cfg := config.LoadConfig()
 
 	// init storages
-	conn := pkg.InitDatabaseConnectionPool(ctx)
+	pkg.RunDatabaseSchemaMigration(cfg)
+	conn := pkg.InitDatabaseConnectionPool(ctx, cfg)
 	defer conn.Close()
 
 	ipStorage := ip.NewStorage(ctx, conn)
@@ -45,9 +44,12 @@ func Run(ctx context.Context) error {
 			return
 		}
 	})
-	mux.HandleFunc("GET /", ip.GetRequestIPHandler(ipServer))
 
-	fmt.Printf("Server is running port %d 🚀\n", 8080)
+	mux.HandleFunc("POST /ip", ip.CreateRequestIPHandler(ipServer))
+	mux.HandleFunc("GET /", ip.GetRequestIPHandler(ipServer))
+	mux.HandleFunc("GET /stats", ip.GetStatsIPHandler(ipServer))
+
+	fmt.Printf("ghtmx %s is running on port %d 🚀\n", cfg.GHTMX.Version, cfg.GHTMX.Port)
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		fmt.Println(err.Error())
 	}

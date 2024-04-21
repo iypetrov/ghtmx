@@ -1,0 +1,34 @@
+{{ block "stats" .}}
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>ghtmx</title>
+    <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles/style.css">
+    <style>
+    .custom-bg {
+      background-color: #f7f7f7;
+    }
+    </style>
+  </head>
+  <body class="flex items-center justify-center h-screen custom-bg">
+    <table class="table-auto border-collapse border border-gray-300">
+      <thead>
+        <tr>
+          <th class="px-4 py-2 border border-gray-300">IP</th>
+          <th class="px-4 py-2 border border-gray-300">Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range . }}
+        <tr>
+          <td class="px-4 py-2 border border-gray-300">{{ .IP }}</td>
+          <td class="px-4 py-2 border border-gray-300">{{ .Count }}</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </body>
+</html>
+{{ end }}
