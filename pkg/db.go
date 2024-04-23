@@ -3,7 +3,6 @@ package pkg
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -13,7 +12,7 @@ import (
 	"github.com/IliyaYavorovPetrov/ghtmx/config"
 )
 
-func RunDatabaseSchemaMigration(cfg config.Config) {
+func RunDatabaseSchemaMigration(cfg config.Config) error {
 	m, err := migrate.New(
 		"file://migrations",
 		fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable",
@@ -23,17 +22,19 @@ func RunDatabaseSchemaMigration(cfg config.Config) {
 			cfg.Storage.Name,
 		))
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := m.Up(); err != nil {
 		if err != migrate.ErrNoChange {
-			log.Fatal(err)
+			return err
 		}
 	}
+
+	return nil
 }
 
-func InitDatabaseConnectionPool(ctx context.Context, cfg config.Config) *pgxpool.Pool {
+func InitDatabaseConnectionPool(ctx context.Context, cfg config.Config) (*pgxpool.Pool, error) {
 	conn, err := pgxpool.New(
 		ctx,
 		fmt.Sprintf(
@@ -45,8 +46,8 @@ func InitDatabaseConnectionPool(ctx context.Context, cfg config.Config) *pgxpool
 		),
 	)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return conn
+	return conn, nil
 }
