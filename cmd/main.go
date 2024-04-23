@@ -26,8 +26,16 @@ func Run(ctx context.Context) error {
 	cfg := config.LoadConfig()
 
 	// init storages
-	pkg.RunDatabaseSchemaMigration(cfg)
-	conn := pkg.InitDatabaseConnectionPool(ctx, cfg)
+	dbRunning := true
+	if err := pkg.RunDatabaseSchemaMigration(cfg); err != nil {
+		dbRunning = false
+	}
+
+	conn, err := pkg.InitDatabaseConnectionPool(ctx, cfg)
+	if err != nil {
+		dbRunning = false
+	}
+
 	defer conn.Close()
 
 	ipStorage := ip.NewStorage(ctx, conn)
@@ -46,7 +54,7 @@ func Run(ctx context.Context) error {
 	})
 
 	mux.HandleFunc("POST /ip", ip.CreateRequestIPHandler(ipServer))
-	mux.HandleFunc("GET /", ip.GetRequestIPHandler(ipServer))
+	mux.HandleFunc("GET /", ip.GetRequestIPHandler(ipServer, dbRunning))
 	mux.HandleFunc("GET /stats", ip.GetStatsIPHandler(ipServer))
 
 	fmt.Printf("ghtmx %s is running on port %d 🚀\n", cfg.GHTMX.Version, cfg.GHTMX.Port)

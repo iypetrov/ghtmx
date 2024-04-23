@@ -23,14 +23,22 @@ func CreateRequestIPHandler(s *Server) func(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func GetRequestIPHandler(s *Server) func(w http.ResponseWriter, r *http.Request) {
+func GetRequestIPHandler(s *Server, dbRunning bool) func(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles("view/index.html"))
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		dto := RequestIPResponseDTO{
 			IP: r.RemoteAddr,
 		}
-		if err := tmpl.Execute(w, dto); err != nil {
+
+		data := struct {
+			DTO       RequestIPResponseDTO
+			DBRunning bool
+		}{
+			DTO:       dto,
+			DBRunning: dbRunning,
+		}
+		if err := tmpl.Execute(w, data); err != nil {
 			log.Println("error executing template :", err)
 			return
 		}
