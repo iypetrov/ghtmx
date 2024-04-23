@@ -3,6 +3,7 @@ package pkg
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -27,6 +28,7 @@ func RunDatabaseSchemaMigration(cfg config.Config) error {
 
 	if err := m.Up(); err != nil {
 		if err != migrate.ErrNoChange {
+			log.Fatalf("%s\n", err.Error())
 			return err
 		}
 	}
