@@ -1,0 +1,163 @@
+---
+name: Delivery 
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+env:
+  IMAGE_NAME: iypetrov/ghtmx
+
+jobs:
+  publish-deploy-image-job:
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Docker metadata
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=false
+          tags: |
+            type=semver,pattern={{version}}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push to Docker Hub
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: |
+            ${{ steps.docker_meta.outputs.tags }}
+            ${{ env.IMAGE_NAME }}:latest
+          labels: ${{ steps.docker_meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+  terraform-apply-job:
+    needs: [ publish-deploy-image-job ]
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: read
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Docker metadata
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=false
+          tags: |
+            type=semver,pattern={{version}}
+
+      - name: Set up aws-cli 
+        uses: unfor19/install-aws-cli-action@v1
+        with:
+          arch: amd64
+
+      - name: Set up terraform 
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.1"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Run terraform 
+        run: |
+          cd infr/terraform
+          terraform init
+          terraform plan
+          terraform apply -auto-approve
+
+
+  swarm-deploy-job:
+    needs: [ terraform-apply-job ]
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: read
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Docker metadata
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=false
+          tags: |
+            type=semver,pattern={{version}}
+
+      - name: Set up aws-cli 
+        uses: unfor19/install-aws-cli-action@v1
+        with:
+          arch: amd64
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Run deploy to Swarm
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: eu-west-2
+          AWS_DEFAULT_OUTPUT: json
+        run: |
+          cmd="command -v docker > /dev/null && sudo docker pull iypetrov/ghtmx:latest && sudo docker service update --image iypetrov/ghtmx:latest ghtmx"
+          while read instance_id; do
+            aws ssm send-command \
+              --instance-ids "${instance_id}" \
+              --document-name "AWS-RunShellScript" \
+              --parameters commands="${cmd}" > /dev/null 2>&1
+            echo "${instance_id}"
+          done < <(aws ec2 describe-instances \
+            --query "Reservations[*].Instances[*].InstanceId" \
+            --filters Name=instance-state-name,Values=running \
+            --output text)
+

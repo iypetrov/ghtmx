@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func CreateRequestIPHandler(s *Server) func(w http.ResponseWriter, r *http.Request) {
@@ -27,8 +28,9 @@ func GetRequestIPHandler(s *Server, dbRunning bool) func(w http.ResponseWriter, 
 	tmpl := template.Must(template.ParseFiles("view/index.html"))
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		parts := strings.Split(r.RemoteAddr, ":")
 		dto := RequestIPResponseDTO{
-			IP: r.RemoteAddr,
+			IP: parts[0],
 		}
 
 		data := struct {

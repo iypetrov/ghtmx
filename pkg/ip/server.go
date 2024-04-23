@@ -2,6 +2,7 @@ package ip
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,9 +19,10 @@ func NewServer(storage *Storage) *Server {
 }
 
 func (s *Server) CreateRequestIPModel(r *http.Request) (RequestIPModel, error) {
+	parts := strings.Split(r.RemoteAddr, ":")
 	model := RequestIPModel{
 		ID:        uuid.New(),
-		IP:        r.RemoteAddr,
+		IP:        parts[0],
 		CreatedAt: time.Now(),
 	}
 
