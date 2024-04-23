@@ -28,7 +28,7 @@ func RunDatabaseSchemaMigration(cfg config.Config) error {
 
 	if err := m.Up(); err != nil {
 		if err != migrate.ErrNoChange {
-			log.Fatalf("%s\n", err.Error())
+			log.Fatal(err)
 			return err
 		}
 	}
