@@ -2,8 +2,11 @@
 name: Delivery 
 on:
   push:
+    branches:
+      - main
     tags:
       - "[0-9]+.[0-9]+.[0-9]+"
+  pull_request:
 
 env:
   IMAGE_NAME: iypetrov/ghtmx
@@ -104,10 +107,9 @@ jobs:
       - name: Run terraform 
         run: |
           cd infr/terraform
-          terraform init
-          terraform plan
-          terraform apply -auto-approve
-
+          terraform init -input=false
+          terraform plan -input=false -compact-warnings
+          terraform apply -input=false -compact-warnings -auto-approve
 
   swarm-deploy-job:
     needs: [ terraform-apply-job ]
@@ -149,13 +151,19 @@ jobs:
           AWS_DEFAULT_REGION: eu-west-2
           AWS_DEFAULT_OUTPUT: json
         run: |
-          cmd="command -v docker > /dev/null && sudo docker pull iypetrov/ghtmx:latest && sudo docker service update --image iypetrov/ghtmx:latest ghtmx"
+          db_addr="$(aws dynamodb get-item --table-name db-config --key '{"DefaultKey": {"S": "STORAGE_ADDR"}}' | jq -r '.Item.Endpoint.S')"
+          echo "db endpoint is ${db_addr}"
+          cmd="touch /tmp/ghtmx && echo ${db_addr} > /tmp/ghtmx && \
+               command -v docker > /dev/null && \
+               sudo docker pull iypetrov/ghtmx:latest && \
+               sudo docker service update --image iypetrov/ghtmx:latest --env-add STORAGE_ADDR=\$(cat /tmp/ghtmx) ghtmx"
+          echo "command for the ec2 instances is:\n${cmd}"
           while read instance_id; do
             aws ssm send-command \
               --instance-ids "${instance_id}" \
               --document-name "AWS-RunShellScript" \
-              --parameters commands="${cmd}" > /dev/null 2>&1
-            echo "${instance_id}"
+              --parameters commands="${cmd}"
+            echo "instance -> ${instance_id}"
           done < <(aws ec2 describe-instances \
             --query "Reservations[*].Instances[*].InstanceId" \
             --filters Name=instance-state-name,Values=running \

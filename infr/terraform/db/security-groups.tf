@@ -1,4 +1,4 @@
-resource "aws_security_group" "backend_security_group" {
+resource "aws_security_group" "db_security_group" {
   egress = [
     {
       cidr_blocks      = ["0.0.0.0/0"]
@@ -27,6 +27,6 @@ resource "aws_security_group" "backend_security_group" {
   ]
   vpc_id = var.vpc_id
   tags = {
-    Name = "Backend Security Group"
+    Name = "DB Security Group"
   }
 }

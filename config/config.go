@@ -48,6 +48,13 @@ func LoadConfig() Config {
 		}
 	}
 
+	if _, ok := os.LookupEnv("STORAGE_ADDR"); ok {
+		err := viper.BindEnv("storage.addr", "STORAGE_ADDR")
+		if err != nil {
+			return Config{}
+		}
+	}
+
 	var cfg Config
 	err = viper.Unmarshal(&cfg)
 	if err != nil {

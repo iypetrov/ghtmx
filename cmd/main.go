@@ -25,14 +25,18 @@ func Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	cfg := config.LoadConfig()
 
+	fmt.Printf("%s\n", cfg.Storage.Addr)
+
 	// init storages
 	dbRunning := true
 	if err := pkg.RunDatabaseSchemaMigration(cfg); err != nil {
+		fmt.Println(err.Error())
 		dbRunning = false
 	}
 
 	conn, err := pkg.InitDatabaseConnectionPool(ctx, cfg)
 	if err != nil {
+		fmt.Println(err.Error())
 		dbRunning = false
 	}
 
@@ -58,7 +62,7 @@ func Run(ctx context.Context) error {
 	mux.HandleFunc("GET /stats", ip.GetStatsIPHandler(ipServer))
 
 	fmt.Printf("ghtmx %s is running on port %d 🚀\n", cfg.GHTMX.Version, cfg.GHTMX.Port)
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", cfg.GHTMX.Port), mux); err != nil {
 		fmt.Println(err.Error())
 	}
 

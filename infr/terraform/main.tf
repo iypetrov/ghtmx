@@ -10,13 +10,13 @@ terraform {
   }
 }
 
-module "gateway" {
-  source = ".//gateway"
+module "db" {
+  source = ".//db"
   vpc_id = aws_vpc.vpc_ghtmx.id
 }
 
 module "backend" {
   source = ".//backend"
   vpc_id = aws_vpc.vpc_ghtmx.id
-  gateway_id = module.gateway.gateway_id
 }
+

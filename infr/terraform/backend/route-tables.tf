@@ -2,7 +2,7 @@ resource "aws_route_table" "backend_route_table" {
   vpc_id = var.vpc_id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = var.gateway_id
+    gateway_id = aws_internet_gateway.backend_internet_gateway.id
   }
   tags = {
     Name = "Backend Route Table"

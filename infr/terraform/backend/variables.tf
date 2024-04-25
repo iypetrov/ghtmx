@@ -3,7 +3,3 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "gateway_id" {
-  description = "The ID of the Gateway"
-  type        = string
-}
