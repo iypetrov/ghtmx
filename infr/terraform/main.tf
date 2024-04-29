@@ -13,6 +13,8 @@ terraform {
 module "db" {
   source = ".//db"
   vpc_id = aws_vpc.vpc_ghtmx.id
+  db_username = var.db_username
+  db_password = var.db_password
 }
 
 module "backend" {

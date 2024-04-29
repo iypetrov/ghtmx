@@ -11,8 +11,8 @@ resource "aws_db_instance" "db_ghtmx" {
   delete_automated_backups = true
   skip_final_snapshot      = true
   db_name                  = "ipdb"
-  username                 = "foo"
-  password                 = "foofoofoo"
+  username                 = var.db_username 
+  password                 = var.db_password
   apply_immediately        = true
   multi_az                 = false
 

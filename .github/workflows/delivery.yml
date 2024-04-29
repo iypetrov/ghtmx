@@ -104,12 +104,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Run terraform 
+      - name: Run terraform apply
+        env:
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
           cd infr/terraform
           terraform init -input=false
-          terraform plan -input=false -compact-warnings
-          terraform apply -input=false -compact-warnings -auto-approve
+          terraform plan -input=false -compact-warnings -var="db_username=${DB_USERNAME}" -var="db_password=${DB_PASSWORD}"
+          terraform apply -input=false -compact-warnings -auto-approve -var="db_username=${DB_USERNAME}" -var="db_password=${DB_PASSWORD}"
 
   swarm-deploy-job:
     needs: [ terraform-apply-job ]
@@ -150,13 +153,15 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: eu-west-2
           AWS_DEFAULT_OUTPUT: json
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
           db_addr="$(aws dynamodb get-item --table-name db-config --key '{"DefaultKey": {"S": "STORAGE_ADDR"}}' | jq -r '.Item.Endpoint.S')"
           echo "db endpoint is ${db_addr}"
           cmd="touch /tmp/ghtmx && echo ${db_addr} > /tmp/ghtmx && \
                command -v docker > /dev/null && \
                sudo docker pull iypetrov/ghtmx:latest && \
-               sudo docker service update --image iypetrov/ghtmx:latest --env-add STORAGE_ADDR=\$(cat /tmp/ghtmx) ghtmx"
+               sudo docker service update --image iypetrov/ghtmx:latest --env-add STORAGE_ADDR=\$(cat /tmp/ghtmx) --env-add STORAGE_USERNAME=\$(echo ${DB_USERNAME}) --env-add STORAGE_PASSWORD=\$(echo ${DB_PASSWORD}) ghtmx"
           echo "command for the ec2 instances is:\n${cmd}"
           while read instance_id; do
             aws ssm send-command \
