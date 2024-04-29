@@ -58,7 +58,7 @@ func Run(ctx context.Context) error {
 	})
 
 	mux.HandleFunc("POST /ip", ip.CreateRequestIPHandler(ipServer))
-	mux.HandleFunc("GET /", ip.GetRequestIPHandler(ipServer, dbRunning))
+	mux.HandleFunc("GET /", ip.GetRequestIPHandler(ipServer, dbRunning, cfg.GHTMX.Version))
 	mux.HandleFunc("GET /stats", ip.GetStatsIPHandler(ipServer))
 
 	fmt.Printf("ghtmx %s is running on port %d 🚀\n", cfg.GHTMX.Version, cfg.GHTMX.Port)
