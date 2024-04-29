@@ -4,8 +4,8 @@ services:
     image: timescale/timescaledb-ha:pg16
     restart: always
     environment:
-      POSTGRES_PASSWORD: admin
-      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: foofoofoo 
+      POSTGRES_USER: foo
       POSTGRES_DB: ipdb
     ports:
       - 5432:5432

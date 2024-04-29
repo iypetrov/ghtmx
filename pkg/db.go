@@ -16,7 +16,7 @@ import (
 func RunDatabaseSchemaMigration(cfg config.Config) error {
 	m, err := migrate.New(
 		"file://migrations",
-		fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable",
+		fmt.Sprintf("postgres://%s:%s@%s/%s",
 			cfg.Storage.Username,
 			cfg.Storage.Password,
 			cfg.Storage.Addr,
