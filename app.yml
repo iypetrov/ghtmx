@@ -1,8 +1,8 @@
 ghtmx:
-  version: 1.3.0
+  version: 1.4.1
   port: 8080
 storage:
   username: foo 
   password: foofoofoo
   name: ipdb
-  addr: db-ghtmx.cfs62smkw60n.eu-west-2.rds.amazonaws.com:5432
+  addr: localhost:5432
