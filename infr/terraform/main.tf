@@ -22,3 +22,8 @@ module "backend" {
   vpc_id = aws_vpc.vpc_ghtmx.id
 }
 
+module "lam" {
+  source = ".//lam"
+  vpc_id = aws_vpc.vpc_ghtmx.id
+}
+
