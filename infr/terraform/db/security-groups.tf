@@ -1,28 +1,28 @@
 resource "aws_security_group" "db_security_group" {
   egress = [
     {
-      cidr_blocks      = ["10.0.1.0/24"]
+      cidr_blocks      = ["0.0.0.0/0"]
       description      = ""
-      from_port        = 8080 
+      from_port        = 0 
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
-      protocol         = "tcp"
+      protocol         = "-1"
       security_groups  = []
       self             = false
-      to_port          = 8080 
+      to_port          = 0 
     }
   ]
   ingress = [
     {
-      cidr_blocks      = ["10.0.2.0/24", "10.0.3.0/24"]
+      cidr_blocks      = ["0.0.0.0/0"]
       description      = ""
-      from_port        = 5432 
+      from_port        = 0 
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
-      protocol         = "tcp"
+      protocol         = "-1"
       security_groups  = []
       self             = false
-      to_port          = 5432
+      to_port          = 0 
     }
   ]
   vpc_id = var.vpc_id
