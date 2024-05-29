@@ -1,5 +1,5 @@
 ghtmx:
-  version: 1.5.0
+  version: 1.5.1
   port: 8080
 storage:
   username: foo 
